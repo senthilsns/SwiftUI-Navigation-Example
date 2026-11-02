@@ -13,7 +13,7 @@ struct FourthView: View {
     
     var body: some View {
         VStack {
-            Text("Detail view for \(title)")
+            Text("Move back to \(title)")
                  
             PrimaryButton(title: "Pop to Third", action: {
                 navManager.popTo("third")

@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct NavigationExampleApp: App {
+    @State private var networkManager = NetworkManager()
     var body: some Scene {
         WindowGroup {
             FirstView()
+                .environment(networkManager)
         }
     }
 }

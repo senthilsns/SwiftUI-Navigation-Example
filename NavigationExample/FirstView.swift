@@ -9,12 +9,42 @@ import SwiftUI
 
 struct FirstView: View {
     
+    @Environment(NetworkManager.self) private var networkManager
     @StateObject var navManager: NavigationManager = NavigationManager()
-    
+    @State var fViewModel = FirstViewModel()
+    @State private var dataLoaded = false
+
     var body: some View {
 
         NavigationStack(path: $navManager.path) {
-            VStack {
+            Group {
+                
+                if fViewModel.isLoading {
+                    
+                    ProgressView("Loading ....")
+                }else if let error = fViewModel.errorMsg {
+                    
+                    if !networkManager.isConnected {
+                        ContentUnavailableView("No Internet Connection", systemImage: "wifi.slash", description: Text("Please connect internet and try again"))
+                            .foregroundStyle(Color.red)
+                    }else {
+                        ContentUnavailableView("Error", systemImage: "exclamationmark.triangle",description: Text(error))
+                            .foregroundStyle(Color.red)
+                    }
+                    
+                }else {
+                    List(fViewModel.post) { item in
+                        Text(String(item.id))
+                            .foregroundStyle(Color.red)
+                            .bold()
+                        Text(item.title)
+                            .font(.headline)
+                        Text(item.body)
+                        
+                    }
+                   
+                }
+              
                                 
                 PrimaryButton(title: "Go to Second", action: {
                     navManager.navigate(to: "second")
@@ -41,27 +71,17 @@ struct FirstView: View {
             })
             .navigationTitle("First View")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+            
+                    await fViewModel.fetchPosts()
+                
+            }
+           
         }
     }
 }
 
 
-struct ButtonStyle: ViewModifier {
-
-    func body(content: Content) -> some View {
-        content
-            .frame(width: 200, height: 50)
-            .background(Color.red)
-            .foregroundStyle(Color.white)
-            .cornerRadius(10)
-    }
-}
-
-extension View {
-    func customStyle() -> some View {
-        modifier(ButtonStyle())
-    }
-}
 
 
 #Preview {
